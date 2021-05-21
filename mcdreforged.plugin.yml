@@ -1,0 +1,16 @@
+id: mcdr_remote
+name: MCDReforged-Remote
+author: Cubik65536
+describe:
+    en_us: A plugin allowing other program to use MCDR features
+    zh_cn: 允许其他程序使用MCDR功能的插件
+link: https://github.com/CuBitStudio/MCDReforged-Remote/tree/MCDReforgedPlugin
+version:
+    1:
+        files:
+            MCDReforgedRemote.py: https://raw.githubusercontent.com/CuBitStudio/MCDReforged-Remote/MCDReforgedPlugin/MCDReforgedRemote.py
+        dependencies:
+            plugin:
+              online_player_api: '*'
+              config_api: '*'
+              json_data_api: '*'

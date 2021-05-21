@@ -7,13 +7,13 @@ from mcdreforged.api.all import *
 from mcdreforged.api.command import *
 
 PLUGIN_METADATA = {
-    'id': 'MCDReforgedRemote',
+    'id': 'mcdr_remote',
     'version': '1.0.0',
     'name': 'MCDReforged-Remote',  # RText component is allowed
     # RText component is allowed
     'description': 'A plugin allowing other program to use MCDR features',
     'author': 'Cubik65536',
-    'link': 'https://git.cubik65536.top/CuBitStudio/MCDReforged-Remote',
+    'link': 'https://github.com/CuBitStudio/MCDReforged-Remote/tree/MCDReforgedPlugin',
     'dependencies': {
         'mcdreforged': '>=1.0.0',
         'online_player_api': '*',
@@ -36,8 +36,6 @@ DEFAULT_CONFIG = {
 
 
 mcdr_server: ServerInterface
-
-
 authKey = ""
 
 

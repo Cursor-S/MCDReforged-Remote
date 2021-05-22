@@ -50,16 +50,26 @@ def threaded_client(connection):
     info = data[1]
     mcdr_server.logger.info("AuthKey received from client: %s", auth)
     mcdr_server.logger.info("Data received from client: %s", info)
-    # Just authenticate
-    if ("authenticate" == info):
-        if (hashlib.sha512(str(authKey).encode("utf-8")).hexdigest() == auth):
+    # authenticate the client
+    if (hashlib.sha512(str(authKey).encode("utf-8")).hexdigest() == auth):
+        # Survival Test
+        if ("Ping" == info):
+            # Response Code for Survival Test
+            connection.send(str.encode('Pong!'))
+        # list command
+        elif ("list" == info):
+            online_player_api = mcdr_server.get_plugin_instance(
+                'online_player_api')
+            data = '在线玩家共{}人，玩家列表: {}'.format(len(
+                online_player_api.get_player_list()), ', '.join(online_player_api.get_player_list()))
+            connection.send(str.encode(data))
+        # No Code Found for Action
+        else:
             # Response Code for Connected Client
             connection.send(str.encode('1'))
-        else:
-            # Response code for login failed
-            connection.send(str.encode('-1'))
     else:
-        connection.send(str.encode('authenticated'))
+        # Response code for authentication failed
+        connection.send(str.encode('-1'))
     connection.close()
     mcdr_server.logger.info("Connection Closed")
 

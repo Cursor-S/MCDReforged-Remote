@@ -1,3 +1,4 @@
+import re
 import hashlib
 import socket
 import threading
@@ -56,6 +57,23 @@ def threaded_client(connection):
         if ("Ping" == info):
             # Response Code for Survival Test
             connection.send(str.encode('Pong!'))
+        # Server Command
+        # elif re.match(r"^\[execute,\s", info) and re.match(r"\]$", info):
+        elif ("execute" == info):
+            command = data[2]
+            mcdr_server.logger.info(
+                "Command received from client: %s", command)
+            is_rcon_running = mcdr_server.is_rcon_running()
+            mcdr_server.logger.info("is_rcon_running: %r", is_rcon_running)
+            if is_rcon_running:
+                rcon_info = mcdr_server.rcon_query(command)
+                mcdr_server.logger.info(
+                    "RCON Command Executed! Info: %s", rcon_info)
+                connection.send(str.encode(rcon_info))
+            else:
+                mcdr_server.execute(command)
+                connection.send(str.encode(
+                    "命令已执行完毕！\n请启用rcon以获得更完善的提示系统！"))
         # list command
         elif ("list" == info):
             online_player_api = mcdr_server.get_plugin_instance(

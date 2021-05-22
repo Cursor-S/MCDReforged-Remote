@@ -78,9 +78,13 @@ def threaded_client(connection):
         elif ("list" == info):
             online_player_api = mcdr_server.get_plugin_instance(
                 'online_player_api')
-            data = '在线玩家共{}人，玩家列表: {}'.format(len(
-                online_player_api.get_player_list()), ', '.join(online_player_api.get_player_list()))
-            connection.send(str.encode(data))
+            player_list = online_player_api.get_player_list()
+            player_list_str: str = ""
+            for player in player_list:
+                player_list_str = player_list_str + "- " + str(player) + "\n"
+            list: str = "在线玩家: " + \
+                str(len(player_list)) + "\n" + player_list_str
+            connection.send(str.encode(list))
         # No Code Found for Action
         else:
             # Response Code for Connected Client
@@ -92,7 +96,7 @@ def threaded_client(connection):
     mcdr_server.logger.info("Connection Closed")
 
 
-@new_thread
+@ new_thread
 def tcp_server(host: str, port: int):
     # Create Socket (TCP) Connection
     ServerSocket = socket.socket(

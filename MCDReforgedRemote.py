@@ -29,9 +29,9 @@ DEFAULT_CONFIG = {
         'port': 64000,
         'authKey': 'password'
     },
-    'tcp_remote': {
-        'remote_ip': ['127.0.0.1'],
-        'remote_port': [65000]
+    'QQBot': {
+        'remote_ip': '127.0.0.1',
+        'remote_port': 65000
     }
 }
 
@@ -58,7 +58,9 @@ def threaded_client(connection):
             # Response Code for Survival Test
             connection.send(str.encode('Pong!'))
         # Server Command
-        # elif re.match(r"^\[execute,\s", info) and re.match(r"\]$", info):
+        elif ("say" == info):
+            mcdr_server.say(data[2])
+            connection.send(str.encode('1'))
         elif ("execute" == info):
             command = data[2]
             mcdr_server.logger.info(
@@ -67,9 +69,12 @@ def threaded_client(connection):
             mcdr_server.logger.info("is_rcon_running: %r", is_rcon_running)
             if is_rcon_running:
                 rcon_info = mcdr_server.rcon_query(command)
-                mcdr_server.logger.info(
-                    "RCON Command Executed! Info: %s", rcon_info)
-                connection.send(str.encode(rcon_info))
+                if not rcon_info:
+                    connection.send(str.encode('1'))
+                else:
+                    mcdr_server.logger.info(
+                        "RCON Command Executed! Info: %s", rcon_info)
+                    connection.send(str.encode(rcon_info))
             else:
                 mcdr_server.execute(command)
                 connection.send(str.encode(

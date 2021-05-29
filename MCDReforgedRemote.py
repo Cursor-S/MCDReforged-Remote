@@ -30,7 +30,7 @@ DEFAULT_CONFIG = {
         'authKey': 'password'
     },
     'QQBot': {
-        'group_id': '123456789',
+        'group_id': ['123456789', '123456123'],
         'host': '127.0.0.1',
         'port': 65000,
     }
@@ -134,8 +134,8 @@ def on_load(server: ServerInterface, old):
 
     def qq(src, ctx):
         player = src.player if src.is_player else 'Console'
-        send_group_msg(f'[{player}] {ctx["message"]}',
-                       config['QQBot']['group_id'])
+        for i in config['QQBot']['group_id']:
+            send_group_msg(f'[{player}] {ctx["message"]}', i)
 
     server.register_help_message('!!qq <msg>', '向QQ群发送消息')
     server.register_command(
@@ -164,7 +164,8 @@ def send_group_msg(msg, group):
     config = Config(PLUGIN_METADATA['name'], DEFAULT_CONFIG)
     host = config['QQBot']['host']
     port = config['QQBot']['port']
-    requests.post(f'http://{host}:{port}/groupMessage', json={
+    result = requests.post(f'http://{host}:{port}/groupMessage', json={
         'group': group,
         'msg': msg
     })
+    mcdr_server.logger.info('[MCDReforgedRemote] send_group_msg received: %s', result.text)

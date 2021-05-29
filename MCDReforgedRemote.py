@@ -1,4 +1,4 @@
-import re
+import requests
 import hashlib
 import socket
 import threading
@@ -30,8 +30,9 @@ DEFAULT_CONFIG = {
         'authKey': 'password'
     },
     'QQBot': {
-        'remote_ip': '127.0.0.1',
-        'remote_port': 65000
+        'group_id': '123456789',
+        'host': '127.0.0.1',
+        'port': 65000,
     }
 }
 
@@ -128,6 +129,23 @@ def tcp_server(host: str, port: int):
     ServerSocket.close()
 
 
+def on_load(server: ServerInterface, old):
+    config = Config(PLUGIN_METADATA['name'], DEFAULT_CONFIG)
+
+    def qq(src, ctx):
+        player = src.player if src.is_player else 'Console'
+        send_group_msg(f'[{player}] {ctx["message"]}',
+                       config['QQBot']['group_id'])
+
+    server.register_help_message('!!qq <msg>', '向QQ群发送消息')
+    server.register_command(
+        Literal('!!qq').
+        then(
+            GreedyText('message').runs(qq)
+        )
+    )
+
+
 def on_server_startup(server: ServerInterface):
     config = Config(PLUGIN_METADATA['name'], DEFAULT_CONFIG)
     """
@@ -140,3 +158,13 @@ def on_server_startup(server: ServerInterface):
     server.logger.info('Server has started')
     tcp_server(config['tcp_server']['host'],
                config['tcp_server']['port'])
+
+
+def send_group_msg(msg, group):
+    config = Config(PLUGIN_METADATA['name'], DEFAULT_CONFIG)
+    host = config['QQBot']['host']
+    port = config['QQBot']['port']
+    requests.post(f'http://{host}:{port}/groupMessage', json={
+        'group': group,
+        'msg': msg
+    })

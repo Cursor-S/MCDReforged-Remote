@@ -1,5 +1,5 @@
 # MCDReforged-Remote
-一个MCDR插件+Java库，允许用户通过该库从MCDR获取信息或执行服务器命令
+一个MCDR插件+Java库，允许用户通过该库实现QQ，MC双向聊天，服务器控制等功能
 
 ### 插件依赖
 #### Python包

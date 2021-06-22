@@ -1,6 +1,8 @@
 # MCDReforged-Remote
 一个MCDR插件+Java库，允许用户通过该库实现QQ，MC双向聊天，服务器控制等功能
 
+[加入 CraftStar Studio 官方交流群（QQ）共同交流](https://qm.qq.com/cgi-bin/qm/qr?k=9HxNOGLgzYWmSPdsoou2swjzOrq5gxzZ&authKey=4UbRMdPPeNUg5fT+vcLZiIGPT0mWRFAL2EjE3DNbmedcrFh3gMA6zZXIRJRw5HjX&noverify=0)
+
 ### 插件依赖
 #### Python包
 * requests

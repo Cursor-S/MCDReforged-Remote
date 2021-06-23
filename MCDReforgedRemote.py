@@ -58,14 +58,19 @@ def threaded_client(connection):
     mcdr_server.logger.info("AuthKey received from client: %s", auth)
     mcdr_server.logger.info("Data received from client: %s", info)
 
-    # authenticate the client
+    # Authenticate the client
     if (hashlib.sha512(str(authKey).encode("utf-8")).hexdigest() == auth):
         # Survival Test
-        if ("Ping" == info):
+        if ("ping" == info):
             # Return status code
-            connection.send(str.encode('SUCCESS'))
+            connection.send(str.encode('SUCCESS\n'))
             # Response Code for Survival Test
             connection.send(str.encode('Pong!'))
+
+        # Authentication Test
+        elif ("authenticate" == info):
+            # Return status code
+            connection.send(str.encode('SUCCESS'))
 
         # Server Commands
         # Say command
@@ -73,9 +78,11 @@ def threaded_client(connection):
             # Get message to send
             msg = data[2]
             # Send the message
-            mcdr_server.say(msg)
+            mcdr_server.broadcast(msg)
             # Return status code
-            connection.send(str.encode('SUCCESS'))
+            connection.send(str.encode('SUCCESS\n'))
+            connection.send(str.encode('MESSAGE_SENT'))
+
 
         # Execute any Minecraft commands
         elif ("execute" == info):
@@ -95,13 +102,13 @@ def threaded_client(connection):
                 # Have return value
                 if not rcon_info:
                     # Return status code
-                    connection.send(str.encode('SUCCESS'))
-                    connection.send(str.encode('NO_RETURN'))
+                    connection.send(str.encode('SUCCESS\n'))
+                    connection.send(str.encode('命令已执行完毕！该命令没有输出'))
                 else:
                     mcdr_server.logger.info(
                         "RCON Command Executed! Info: %s", rcon_info)
                     # Return status code
-                    connection.send(str.encode('SUCCESS'))
+                    connection.send(str.encode('SUCCESS\n'))
                     # Return command return value
                     connection.send(str.encode(rcon_info))
             # It isn't
@@ -109,7 +116,7 @@ def threaded_client(connection):
                 # Execute command via MCDR
                 mcdr_server.execute(command)
                 # Return status code
-                connection.send(str.encode('SUCCESS'))
+                connection.send(str.encode('SUCCESS\n'))
                 # Notification for enable rcon
                 connection.send(str.encode(
                     "命令已执行完毕！\n请启用rcon以获得更完善的提示系统！"))
@@ -129,7 +136,7 @@ def threaded_client(connection):
             list: str = "在线玩家: " + \
                 str(len(player_list)) + "\n" + player_list_str
             # Return status code
-            connection.send(str.encode('SUCCESS'))
+            connection.send(str.encode('SUCCESS\n'))
             # Return player list
             connection.send(str.encode(list))
 

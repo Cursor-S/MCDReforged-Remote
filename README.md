@@ -34,7 +34,7 @@ MC向QQ发送信息的功能与 [kukume/kukubot](https://www.github.com/kukume/k
 ### 高级开发
 如果您希望直接使用Java库进行开发，请遵循以下步骤：
 1. 将本插件像其他MCDR插件一样安装（将py文件放入plugins文件夹内）
-2. 在项目内添加maven仓库 `https://maven.cubik65536.top/repository/maven-public/`
+2. 在项目内添加maven仓库 `https://maven.craftstar.net/repository/maven-public/`
 3. 在项目内添加依赖 `net.craftstar:MCDReforged-Remote:1.0.1`
 4. 您现在可以使用Java库内的功能了！每个函数都已经有了基本的Doc注释来帮助理解。
 

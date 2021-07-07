@@ -11,7 +11,7 @@ PLUGIN_METADATA = {
     'id': 'mcdr_remote',
     'version': '2.0',
     'name': 'MCDReforged-Remote',
-    'description': 'A plugin allowing other program to use MCDR features',
+    'description': 'An MCDR plugin implementing the Flask framework. Allowing users to remotely control the Minecraft server or implement two-way chatbots through related APIs.',
     'author': 'Cubik65536',
     'link': 'https://github.com/CraftStarStudio/MCDReforged-Remote',
     'dependencies': {

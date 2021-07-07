@@ -2,15 +2,15 @@ id: mcdr_remote
 name: MCDReforged-Remote
 author: Cubik65536
 describe:
-    en_us: A plugin allowing other program to use MCDR features
-    zh_cn: 允许其他程序使用MCDR功能的插件
-link: https://github.com/CuBitStudio/MCDReforged-Remote/tree/MCDReforgedPlugin
+  en_us: An MCDR plugin implementing the Flask framework. Allowing users to remotely control the Minecraft server or implement two-way chatbots through related APIs.
+  zh_cn: 一个包含Flask框架的MCDR插件，允许用户通过相关API远程控制Minecraft服务器或实现双向聊天机器人
+link: https://github.com/CraftStarStudio/MCDReforged-Remote
 version:
-    1:
-        files:
-            MCDReforgedRemote.py: https://raw.githubusercontent.com/CuBitStudio/MCDReforged-Remote/MCDReforgedPlugin/MCDReforgedRemote.py
-        dependencies:
-            plugin:
-              online_player_api: '*'
-              config_api: '*'
-              json_data_api: '*'
+  2:
+    files:
+      MCDReforgedRemote.py: https://raw.githubusercontent.com/CraftStarStudio/MCDReforged-Remote/main/MCDReforgedRemote.py
+    dependencies:
+      plugin:
+        online_player_api: "*"
+        config_api: "*"
+        json_data_api: "*"

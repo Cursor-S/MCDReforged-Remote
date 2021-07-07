@@ -7,8 +7,8 @@ The `MCDReforgedPlugin` and `JavaPackage` branches are **deprecated**!
 #### Python Packages
 * hashlib
 * requests
-* waitress
-* flask
+* waitress ***(Install with: `pip install waitress`)***
+* flask ***(Install with: `pip install Flask`)***
 #### Other MCDR Plugins required
 * [OnlinePlayerAPI](https://github.com/zhang-anzhi/MCDReforgedPlugins/tree/master/OnlinePlayerAPI)
 * [ConfigAPI](https://github.com/hanbings/ConfigAPI)

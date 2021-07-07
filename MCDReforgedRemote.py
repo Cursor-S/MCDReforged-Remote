@@ -1,7 +1,7 @@
-import requests
 import hashlib
-import socket
-import threading
+import requests
+from waitress import serve
+from flask import Flask
 from ConfigAPI import Config
 from mcdreforged.plugin.server_interface import ServerInterface
 from mcdreforged.api.all import *
@@ -9,11 +9,11 @@ from mcdreforged.api.command import *
 
 PLUGIN_METADATA = {
     'id': 'mcdr_remote',
-    'version': '1.0.1',
+    'version': '2.0',
     'name': 'MCDReforged-Remote',
     'description': 'A plugin allowing other program to use MCDR features',
     'author': 'Cubik65536',
-    'link': 'https://github.com/CuBitStudio/MCDReforged-Remote/tree/MCDReforgedPlugin',
+    'link': 'https://github.com/CraftStarStudio/MCDReforged-Remote',
     'dependencies': {
         'mcdreforged': '>=1.0.0',
         'online_player_api': '*',
@@ -23,7 +23,7 @@ PLUGIN_METADATA = {
 }
 
 DEFAULT_CONFIG = {
-    'tcp_server': {
+    'flask': {
         'host': '127.0.0.1',
         'port': 64000,
         'authKey': 'password'
@@ -36,160 +36,47 @@ DEFAULT_CONFIG = {
 }
 
 
+# Flask Server App
+app = Flask(__name__)
 # Minecraft Server object
 mcdr_server: ServerInterface
 # Authentication Key
 authKey = ""
 
 
-# Client Process Thread
-def threaded_client(connection):
-    # Receive data from client
-    bytes = connection.recv(2048)
-    # Decote the data
-    bytes = bytes.decode("utf8")
-    # Split them into auth key and command data
-    data = bytes.strip('][').split(', ')
-    # AuthKey
-    auth = data[0]
-    # Command
-    info = data[1]
-
-    mcdr_server.logger.info("AuthKey received from client: %s", auth)
-    mcdr_server.logger.info("Data received from client: %s", info)
-
-    # Authenticate the client
-    if (hashlib.sha512(str(authKey).encode("utf-8")).hexdigest() == auth):
-        # Survival Test
-        if ("ping" == info):
-            # Return status code
-            connection.send(str.encode('SUCCESS\n'))
-            # Response Code for Survival Test
-            connection.send(str.encode('Pong!'))
-
-        # Authentication Test
-        elif ("authenticate" == info):
-            # Return status code
-            connection.send(str.encode('SUCCESS'))
-
-        # Server Commands
-        # Say command
-        elif ("say" == info):
-            # Get message to send
-            msg = data[2]
-            # Send the message
-            mcdr_server.broadcast(msg)
-            # Return status code
-            connection.send(str.encode('SUCCESS\n'))
-            connection.send(str.encode('MESSAGE_SENT'))
+# Flask Web App Routes
+@app.route("/")
+def hello_world():
+    return "<p>Hello, World!</p>"
 
 
-        # Execute any Minecraft commands
-        elif ("execute" == info):
-            # Get command
-            command = data[2]
-            mcdr_server.logger.info(
-                "Command received from client: %s", command)
-
-            # Check if MCDR Rcon is enabled
-            is_rcon_running = mcdr_server.is_rcon_running()
-            mcdr_server.logger.info("is_rcon_running: %r", is_rcon_running)
-
-            # It is
-            if is_rcon_running:
-                # Execute command
-                rcon_info = mcdr_server.rcon_query(command)
-                # Have return value
-                if not rcon_info:
-                    # Return status code
-                    connection.send(str.encode('SUCCESS\n'))
-                    connection.send(str.encode('命令已执行完毕！该命令没有输出'))
-                else:
-                    mcdr_server.logger.info(
-                        "RCON Command Executed! Info: %s", rcon_info)
-                    # Return status code
-                    connection.send(str.encode('SUCCESS\n'))
-                    # Return command return value
-                    connection.send(str.encode(rcon_info))
-            # It isn't
-            else:
-                # Execute command via MCDR
-                mcdr_server.execute(command)
-                # Return status code
-                connection.send(str.encode('SUCCESS\n'))
-                # Notification for enable rcon
-                connection.send(str.encode(
-                    "命令已执行完毕！\n请启用rcon以获得更完善的提示系统！"))
-
-        # List command
-        elif ("list" == info):
-            # Get online_player_api instance
-            online_player_api = mcdr_server.get_plugin_instance(
-                'online_player_api')
-            # Get player list
-            player_list = online_player_api.get_player_list()
-            # Create player list string
-            player_list_str: str = ""
-            # Build player list string
-            for player in player_list:
-                player_list_str = player_list_str + "- " + str(player) + "\n"
-            list: str = "在线玩家: " + \
-                str(len(player_list)) + "\n" + player_list_str
-            # Return status code
-            connection.send(str.encode('SUCCESS\n'))
-            # Return player list
-            connection.send(str.encode(list))
-
-        # No Code Found for Action
-        else:
-            # Response Code for Connected Client
-            connection.send(str.encode('NO_COMMAND'))
-    else:
-        # Response code for authentication failed
-        connection.send(str.encode('AUTH_FAILED'))
-    # Close client connection
-    connection.close()
-    mcdr_server.logger.info("Connection Closed")
-
-
-# TCP Server thread
+# Flask Server Thread
 @ new_thread
-def tcp_server(host: str, port: int):
-    # Create Socket (TCP) Connection
-    ServerSocket = socket.socket(
-        family=socket.AF_INET, type=socket.SOCK_STREAM)
-    ThreadCount = 0
-    # bind host and port
-    try:
-        ServerSocket.bind((host, port))
-    except socket.error as e:
-        mcdr_server.logger.info(str(e))
+def flask(host: str, port: int):
+    # Start the Flask Server
+    mcdr_server.logger.info("Starting Flask Server...")
+    serve(app, host=host, port=port)
 
-    # Successfully binded
-    mcdr_server.logger.info('[MCDReforgedRemote] Waiting for connection...')
-    ServerSocket.listen(5)
 
-    # Waiting for Client Connections
-    while True:
-        # Accept new connection
-        Client, address = ServerSocket.accept()
-        # Create a new process thread
-        client_handler = threading.Thread(
-            target=threaded_client,
-            args=(Client,)
-        )
-        client_handler.start()
-        ThreadCount += 1
-        mcdr_server.logger.info('[MCDReforgedRemote] New Client Request')
-
-    # Close Socket
-    ServerSocket.close()
+# Execute when the server is fully startup
+def on_server_startup(server: ServerInterface):
+    server.logger.info('Server has started')
+    # Make Minecraft Server objet as a global object
+    global mcdr_server
+    mcdr_server = server
+    # Declare global variables for authentication key
+    global authKey
+    config = Config(PLUGIN_METADATA['name'], DEFAULT_CONFIG)
+    # Get authKey from config file and encrypt it
+    authKey = hashlib.sha512(
+        str(config['flask']['authKey']).encode("utf-8")).hexdigest()
+    # Startup the Flask Web App Server
+    flask(config['flask']['host'],
+          config['flask']['port'])
 
 
 # Execute when the server is loading
 def on_load(server: ServerInterface, old):
-    config = Config(PLUGIN_METADATA['name'], DEFAULT_CONFIG)
-
     # !!qq command function
     def qq(src, ctx):
         # Check if the command executor is a player or the console
@@ -208,22 +95,6 @@ def on_load(server: ServerInterface, old):
             GreedyText('message').runs(qq)
         )
     )
-
-
-# Execute when the server is fully startup
-def on_server_startup(server: ServerInterface):
-    server.logger.info('Server has started')
-    # Make Minecraft Server objet as a global object
-    global mcdr_server
-    mcdr_server = server
-    # Declare global variables for authentication key
-    global authKey
-    config = Config(PLUGIN_METADATA['name'], DEFAULT_CONFIG)
-    # Get authKey from config file
-    authKey = config['tcp_server']['authKey']
-    # Startup new TCP Server instance with host and port in config file
-    tcp_server(config['tcp_server']['host'],
-               config['tcp_server']['port'])
 
 
 # Send message to QQ Group via HTTP Service.

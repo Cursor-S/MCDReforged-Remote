@@ -1,4 +1,4 @@
-The MCDReforgedPlugin and JacaPackage branches are **deprecated**!
+The `MCDReforgedPlugin` and `JavaPackage` branches are **deprecated**!
 
 # MCDReforged-Remote
 一个MCDR插件+Java库，允许用户通过该库实现QQ，MC双向聊天，服务器控制等功能

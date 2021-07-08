@@ -2,6 +2,7 @@ import hashlib
 import requests
 from waitress import serve
 from flask import Flask
+from flask import request
 from ConfigAPI import Config
 from mcdreforged.plugin.server_interface import ServerInterface
 from mcdreforged.api.all import *
@@ -41,13 +42,32 @@ app = Flask(__name__)
 # Minecraft Server object
 mcdr_server: ServerInterface
 # Authentication Key
-authKey = ""
+authenticationKey = ""
 
 
 # Flask Web App Routes
 @app.route("/")
 def hello_world():
-    return "<p>Hello, World!</p>"
+    return """
+           <h3>Welcome to MCDR-Remote!</h3>
+           <p>If you see this page, the integrated Flask server of the plugin is running properly and the APIs provided are ready to use.</p>
+           <br/>
+           <p>MCDReforged-Remote 2.0 Alpha | Powered by <a href="https://www.craftstar.net">CraftStar Studio</a>.</p>
+           """
+
+
+@app.route("/auth", methods=["GET", "POST"])
+def authenticate():
+    authKey = request.args.get("authKey")
+    status_code = 403
+    message = "Authenticate Failed!"
+    if hashlib.sha512(str(authKey).encode("utf-8")).hexdigest() == authenticationKey:
+        status_code = 200
+        message = "Authenticated!"
+    return {
+        "status_code": status_code,
+        "message": message
+    }
 
 
 # Flask Server Thread
@@ -65,10 +85,10 @@ def on_server_startup(server: ServerInterface):
     global mcdr_server
     mcdr_server = server
     # Declare global variables for authentication key
-    global authKey
+    global authenticationKey
     config = Config(PLUGIN_METADATA['name'], DEFAULT_CONFIG)
-    # Get authKey from config file and encrypt it
-    authKey = hashlib.sha512(
+    # Get authenticationKey from config file and encrypt it
+    authenticationKey = hashlib.sha512(
         str(config['flask']['authKey']).encode("utf-8")).hexdigest()
     # Startup the Flask Web App Server
     flask(config['flask']['host'],
